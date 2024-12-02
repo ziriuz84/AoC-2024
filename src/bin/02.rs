@@ -36,9 +36,9 @@ pub fn part_two(input: &str) -> Option<u32> {
     println!("no secure");
     for data in unsecure {
         println!("data: {:?}", data);
-        for element in data.clone() {
+        for (i, element) in data.clone().into_iter().enumerate() {
             let mut temp = data.clone();
-            temp.remove(temp.iter().position(|x| *x == element).unwrap());
+            temp.remove(i);
             if temp.windows(2).all(|w| w[0] < w[1] && w[1] - w[0] <= 3)
                 || temp.windows(2).all(|w| w[1] < w[0] && w[0] - w[1] <= 3)
             {
@@ -67,5 +67,33 @@ mod tests {
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
         assert_eq!(result, Some(4));
+    }
+
+    #[test]
+    fn test_part_one2() {
+        let input = "48 46 47 49 51 54 56
+1 1 2 3 4 5
+1 2 3 4 5 5
+5 1 2 3 4 5
+1 4 3 2 1
+1 6 7 8 9
+1 2 3 4 3
+9 8 7 6 7";
+        let result = part_one(input);
+        assert_eq!(result, Some(0));
+    }
+
+    #[test]
+    fn test_part_two2() {
+        let input = "48 46 47 49 51 54 56
+1 1 2 3 4 5
+1 2 3 4 5 5
+5 1 2 3 4 5
+1 4 3 2 1
+1 6 7 8 9
+1 2 3 4 3
+9 8 7 6 7";
+        let result = part_two(input);
+        assert_eq!(result, Some(8));
     }
 }

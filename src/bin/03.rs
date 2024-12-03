@@ -19,7 +19,28 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    println!("{}", input);
+    let mut enabled = true;
+    let re = regex::Regex::new(r"(don't\(\))|(do\(\))|mul\(\d+,\d+\)").unwrap();
+    let re = regex::Regex::new(r"(don't\(\))|(do\(\))|mul\(([1-9]|[1-9][0-9]|[1-9][0-9][0-9]),([1-9]|[1-9][0-9]|[1-9][0-9][0-9])\)").unwrap();
+    let result = re.captures_iter(input).fold(0, |acc, cap| {
+        let mut sum: u32 = 0;
+        println!("{:?}", cap);
+        if cap.get(1).is_some_and(|x| x.as_str() == "don't()") {
+            enabled = false;
+        };
+        if cap.get(2).is_some_and(|x| x.as_str() == "do()") {
+            enabled = true;
+        };
+        if enabled && cap.get(3).is_some() && cap.get(4).is_some() {
+            sum = cap.get(3).unwrap().as_str().parse::<u32>().unwrap()
+                * cap.get(4).unwrap().as_str().parse::<u32>().unwrap();
+            println!("{}", sum);
+        }
+        println!("{}", enabled);
+        acc + sum
+    });
+    Some(result)
 }
 
 #[cfg(test)]
@@ -34,7 +55,8 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+        let result = part_two(input);
+        assert_eq!(result, Some(48));
     }
 }

@@ -19,13 +19,11 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    println!("{}", input);
     let mut enabled = true;
     let re = regex::Regex::new(r"(don't\(\))|(do\(\))|mul\(\d+,\d+\)").unwrap();
     let re = regex::Regex::new(r"(don't\(\))|(do\(\))|mul\(([1-9]|[1-9][0-9]|[1-9][0-9][0-9]),([1-9]|[1-9][0-9]|[1-9][0-9][0-9])\)").unwrap();
     let result = re.captures_iter(input).fold(0, |acc, cap| {
         let mut sum: u32 = 0;
-        println!("{:?}", cap);
         if cap.get(1).is_some_and(|x| x.as_str() == "don't()") {
             enabled = false;
         };
@@ -35,9 +33,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         if enabled && cap.get(3).is_some() && cap.get(4).is_some() {
             sum = cap.get(3).unwrap().as_str().parse::<u32>().unwrap()
                 * cap.get(4).unwrap().as_str().parse::<u32>().unwrap();
-            println!("{}", sum);
         }
-        println!("{}", enabled);
         acc + sum
     });
     Some(result)

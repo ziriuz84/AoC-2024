@@ -27,26 +27,21 @@ pub fn part_two(input: &str) -> Option<u32> {
         if data.windows(2).all(|w| w[0] < w[1] && w[1] - w[0] <= 3)
             || data.windows(2).all(|w| w[1] < w[0] && w[0] - w[1] <= 3)
         {
-            println!("yes {:?}", data);
             secure.push(data);
         } else {
             unsecure.push(data);
         }
     }
-    println!("no secure");
     for data in unsecure {
-        println!("data: {:?}", data);
         for (i, element) in data.clone().into_iter().enumerate() {
             let mut temp = data.clone();
             temp.remove(i);
             if temp.windows(2).all(|w| w[0] < w[1] && w[1] - w[0] <= 3)
                 || temp.windows(2).all(|w| w[1] < w[0] && w[0] - w[1] <= 3)
             {
-                println!("yes {:?}", data);
                 secure.push(temp);
                 break;
             } else {
-                println!("no {:?}", temp);
             }
         }
     }

@@ -2,15 +2,14 @@ advent_of_code::solution!(8);
 
 #[derive(Debug)]
 struct Antenna {
-    x: usize,
-    y: usize,
+    x: i32,
+    y: i32,
     value: char,
 }
 #[derive(Debug)]
 struct Antinode {
-    x: usize,
-    y: usize,
-    antennas: Vec<Antenna>,
+    x: i32,
+    y: i32,
 }
 
 impl PartialEq for Antenna {
@@ -19,10 +18,30 @@ impl PartialEq for Antenna {
     }
 }
 
+impl PartialEq for Antinode {
+    fn eq(&self, other: &Antinode) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+impl Clone for Antenna {
+    fn clone(&self) -> Self {
+        Antenna {
+            x: self.x,
+            y: self.y,
+            value: self.value,
+        }
+    }
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
     let splitted_input: Vec<&str> = input.lines().collect();
     let mut map: Vec<Vec<char>> = Vec::new();
     let mut antennas: Vec<Antenna> = Vec::new();
+    let mut antinodes: Vec<Antinode> = Vec::new();
+    let mut couple_antennas: Vec<(Antenna, Antenna)> = Vec::new();
+    let mut antenna_positions: Vec<(i32, i32)> = Vec::new();
+    let mut sum = 0;
     splitted_input.iter().for_each(|line| {
         map.push(line.chars().collect());
     });
@@ -32,29 +51,54 @@ pub fn part_one(input: &str) -> Option<u32> {
         for j in 0..map[i].len() {
             if map[i][j] != '.' {
                 let antenna: Antenna = Antenna {
-                    x: j,
-                    y: i,
+                    x: j as i32,
+                    y: i as i32,
                     value: map[i][j],
                 };
                 antennas.push(antenna);
+                antenna_positions.push((j as i32, i as i32));
             }
         }
     }
-    for antenna in antennas {
-        for antenna2 in antennas {
-            if antenna == antenna2 {
-                continue;
-            } else {
-                let dist_x = (antenna.x as i32 - antenna2.x as i32).abs();
-                let dist_y = (antenna.y as i32 - antenna2.y as i32).abs();
-                let antinode: Antinode = Antinode {
+    antennas.clone().iter().for_each(|antenna| {
+        antennas.clone().iter().for_each(|antenna2| {
+            if !couple_antennas.contains(&(antenna.clone(), antenna2.clone()))
+                && !couple_antennas.contains(&(antenna2.clone(), antenna.clone()))
+                && antenna != antenna2
+                && antenna.value == antenna2.value
+            {
+                let dist_x = antenna.x - antenna2.x;
+                let dist_y = antenna.y - antenna2.y;
+                let antinode_a: Antinode = Antinode {
+                    x: antenna.x - dist_x,
+                    y: antenna.y - dist_y,
+                };
+                let antinode_b: Antinode = Antinode {
+                    x: antenna2.x + dist_x,
+                    y: antenna2.y + dist_y,
+                };
+                if !antinodes.contains(&antinode_a) {
+                    antinodes.push(antinode_a);
                 }
+                if !antinodes.contains(&antinode_b) {
+                    antinodes.push(antinode_b);
+                }
+                couple_antennas.push((antenna.clone(), antenna2.clone()));
             }
-        }
-    }
-    println!("{:?}", antennas);
+        });
+    });
 
-    None
+    antinodes.iter().for_each(|antinode| {
+        if antinode.x >= 0
+            && antinode.x < width as i32
+            && antinode.y >= 0
+            && antinode.y < height as i32
+        {
+            println!("{} {}", antinode.x, antinode.y);
+            sum += 1;
+        }
+    });
+    Some(sum as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {

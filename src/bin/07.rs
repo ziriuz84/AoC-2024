@@ -1,16 +1,17 @@
 advent_of_code::solution!(7);
 
-fn test_result(result: u32, prev_result: u32, inputs: Vec<u32>, index: isize) -> bool {
+fn test_result(result: u32, prev_result: u32, inputs: Vec<u32>, index: usize) -> bool {
     if index >= inputs.len() {
-        false
+        return false;
     }
+    println!("{} {}", result, inputs[index]);
     let mut new_result: u32 = prev_result * inputs[index];
-    if new_result > result {
-        false
-    } else if new_result == result {
+    println!("* {} {}", new_result, result);
+    if new_result == result {
         true
     } else {
         new_result = prev_result + inputs[index];
+        println!("+ {} {}", new_result, result);
         if new_result > result {
             false
         } else if new_result == result {
@@ -25,15 +26,20 @@ pub fn part_one(input: &str) -> Option<u32> {
     let splitted_input: Vec<&str> = input.lines().collect();
     let mut results: Vec<u32> = Vec::new();
     let mut inputs: Vec<Vec<u32>> = Vec::new();
+    let mut sum = 0;
     splitted_input.iter().for_each(|l| {
         let line: Vec<&str> = l.split(": ").collect();
         results.push(line[0].parse().unwrap());
         inputs.push(line[1].split(' ').map(|x| x.parse().unwrap()).collect());
     });
-    for i in 0..inputs.len() {}
-
     println!("{:?}", inputs);
-    None
+    for i in 0..inputs.len() {
+        if test_result(results[i], 0, inputs[i].clone(), 0) {
+            sum += results[i];
+        }
+    }
+
+    Some(sum)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {

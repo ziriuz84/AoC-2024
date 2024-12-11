@@ -67,8 +67,8 @@ pub fn part_one(input: &str) -> Option<u32> {
                 && antenna != antenna2
                 && antenna.value == antenna2.value
             {
-                let dist_x = antenna.x - antenna2.x;
-                let dist_y = antenna.y - antenna2.y;
+                let dist_x = antenna2.x - antenna.x;
+                let dist_y = antenna2.y - antenna.y;
                 let antinode_a: Antinode = Antinode {
                     x: antenna.x - dist_x,
                     y: antenna.y - dist_y,
@@ -94,7 +94,6 @@ pub fn part_one(input: &str) -> Option<u32> {
             && antinode.y >= 0
             && antinode.y < height as i32
         {
-            println!("{} {}", antinode.x, antinode.y);
             sum += 1;
         }
     });
@@ -102,7 +101,83 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let splitted_input: Vec<&str> = input.lines().collect();
+    let mut map: Vec<Vec<char>> = Vec::new();
+    let mut antennas: Vec<Antenna> = Vec::new();
+    let mut antinodes: Vec<Antinode> = Vec::new();
+    let mut couple_antennas: Vec<(Antenna, Antenna)> = Vec::new();
+    let mut antenna_positions: Vec<(i32, i32)> = Vec::new();
+    let mut sum = 0;
+    splitted_input.iter().for_each(|line| {
+        map.push(line.chars().collect());
+    });
+    let width = map[0].len();
+    let height = map.len();
+    println!("width: {}, height: {}", width, height);
+    for i in 0..map.len() {
+        for j in 0..map[i].len() {
+            if map[i][j] != '.' {
+                let antenna: Antenna = Antenna {
+                    x: j as i32,
+                    y: i as i32,
+                    value: map[i][j],
+                };
+                antennas.push(antenna);
+                antenna_positions.push((j as i32, i as i32));
+            }
+        }
+    }
+    antennas.clone().iter().for_each(|antenna| {
+        antennas.clone().iter().for_each(|antenna2| {
+            if !couple_antennas.contains(&(antenna.clone(), antenna2.clone()))
+                && !couple_antennas.contains(&(antenna2.clone(), antenna.clone()))
+                && antenna != antenna2
+                && antenna.value == antenna2.value
+            {
+                let mut cur_x = antenna.x;
+                let mut cur_y = antenna.y;
+                let dist_x = antenna2.x - antenna.x;
+                let dist_y = antenna2.y - antenna.y;
+                println!("antenna: {:?}", antenna);
+                println!("antenna2: {:?}", antenna2);
+                println!("{} {} {} {}", cur_x, cur_y, dist_x, dist_y);
+                while cur_x >= 0 && cur_x < width as i32 && cur_y >= 0 && cur_y < height as i32 {
+                    cur_x -= dist_x;
+                    cur_y -= dist_y;
+                    println!("{} {}", cur_x, cur_y);
+                    let antinode_a: Antinode = Antinode { x: cur_x, y: cur_y };
+                    //if !antinodes.contains(&antinode_a) {
+                    antinodes.push(antinode_a);
+                    //}
+                }
+                cur_x = antenna2.x;
+                cur_y = antenna2.y;
+                println!("{} {} {} {}", cur_x, cur_y, dist_x, dist_y);
+                while cur_x >= 0 && cur_x < width as i32 && cur_y >= 0 && cur_y < height as i32 {
+                    cur_x += dist_x;
+                    cur_y += dist_y;
+                    println!("{} {}", cur_x, cur_y);
+                    let antinode_b: Antinode = Antinode { x: cur_x, y: cur_y };
+                    //if !antinodes.contains(&antinode_b) {
+                    antinodes.push(antinode_b);
+                    //}
+                }
+                couple_antennas.push((antenna.clone(), antenna2.clone()));
+            }
+        });
+    });
+
+    println!("antinodes: {:?}", antinodes);
+    antinodes.iter().for_each(|antinode| {
+        if antinode.x >= 0
+            && antinode.x < width as i32
+            && antinode.y >= 0
+            && antinode.y < height as i32
+        {
+            sum += 1;
+        }
+    });
+    Some(sum as u32)
 }
 
 #[cfg(test)]
@@ -118,6 +193,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(34));
     }
 }

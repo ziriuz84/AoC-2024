@@ -1,58 +1,52 @@
 advent_of_code::solution!(7);
+use rand::Rng;
 
-fn test_result_mul(result: u32, prev_result: u32, inputs: Vec<u32>, index: usize) -> bool {
+fn test_result(result: u64, prev_result: u64, inputs: Vec<u64>, index: usize) -> bool {
     if index >= inputs.len() {
         return false;
     }
-    println!("{} {}", result, inputs[index]);
-    let mut new_result: u32 = prev_result * inputs[index];
-    println!("* {} {}", new_result, result);
-    if new_result == result {
-        true
-    } else if new_result > result {
-        test_result_sum(result, new_result, inputs, index)
-    } else {
-        test_result_mul(result, new_result, inputs, index + 1)
-    }
-}
-
-fn test_result_sum(result: u32, prev_result: u32, inputs: Vec<u32>, index: usize) -> bool {
-    if index >= inputs.len() {
+    if result < prev_result + inputs[index] && result < prev_result * inputs[index] {
         return false;
     }
-    println!("{} {}", result, inputs[index]);
-    let mut new_result: u32 = prev_result + inputs[index];
-    println!("+ {} {}", new_result, result);
+    let mut rng = rand::thread_rng();
+    let random_number: f64 = rng.gen();
+    let mut new_result: u64 = 0;
+    if random_number > 0.5 {
+        new_result = prev_result * inputs[index];
+    } else {
+        new_result = prev_result + inputs[index];
+    }
     if new_result == result {
         true
-    } else if new_result > result {
-        //test_result_sum(result, new_result, inputs, index)
-        false
     } else {
-        test_result_mul(result, new_result, inputs, index + 1)
+        test_result(result, new_result, inputs, index + 1)
     }
 }
-pub fn part_one(input: &str) -> Option<u32> {
+pub fn part_one(input: &str) -> Option<u64> {
     let splitted_input: Vec<&str> = input.lines().collect();
-    let mut results: Vec<u32> = Vec::new();
-    let mut inputs: Vec<Vec<u32>> = Vec::new();
+    let mut results: Vec<u64> = Vec::new();
+    let mut inputs: Vec<Vec<u64>> = Vec::new();
     let mut sum = 0;
     splitted_input.iter().for_each(|l| {
         let line: Vec<&str> = l.split(": ").collect();
         results.push(line[0].parse().unwrap());
         inputs.push(line[1].split(' ').map(|x| x.parse().unwrap()).collect());
     });
-    println!("{:?}", inputs);
     for i in 0..inputs.len() {
-        if test_result_sum(results[i], 0, inputs[i].clone(), 0) {
-            sum += results[i];
+        for _j in 0..50000 {
+            if test_result(results[i], 0, inputs[i].clone(), 0) {
+                println!("{} {:?}", results[i], inputs[i].clone());
+                sum += results[i];
+                break;
+            }
         }
     }
 
     Some(sum)
+    //None
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<u64> {
     None
 }
 

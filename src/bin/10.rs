@@ -47,13 +47,19 @@ fn search_word(matrix: Vec<Vec<char>>, word: &str) -> i32 {
     counter
 }
 
-fn test_points(points: &Vec<Vec<char>>, width: u32, height: u32, i: usize, j: usize) -> bool {
+fn test_points(points: &Vec<Vec<char>>, width: usize, height: usize, i: usize, j: usize) -> bool {
     for (dx, dy) in &DIRECTIONS {
-        if i + dx >= 0 && j + dy >= 0 && i + dx < width && j + dy < height {
-            if matrix[i + dx][j + dy] == 0 {
-                true
-            } else if matrix[i + dx][j + dy] == matrix[i][j] - 1 {
-                test_points(points, width, height, i + dx, j + dy)
+        if i as isize + dx >= 0
+            && j as isize + dy >= 0
+            && i as isize + dx < width as isize
+            && j as isize + dy < height as isize
+        {
+            let x: usize = (i as isize + dx) as usize;
+            let y: usize = (j as isize + dy) as usize;
+            if points[x][y] == '0' {
+                return true;
+            } else if points[x][y].to_digit(10).unwrap() == points[i][j].to_digit(10).unwrap() - 1 {
+                return test_points(points, width, height, x, y);
             }
         }
     }
@@ -67,24 +73,24 @@ fn test_next_point(point: Point, other_point: Point) -> bool {
 pub fn part_one(input: &str) -> Option<u32> {
     let splitted_input: Vec<&str> = input.lines().collect();
     let mut char_matrix: Vec<Vec<char>> = Vec::new();
+    let mut sum = 0;
     splitted_input.iter().for_each(|line| {
         char_matrix.push(line.chars().collect());
     });
-    let width = matrix[0].len();
-    let height = matrix.len();
+    let width: usize = char_matrix[0].len();
+    let height: usize = char_matrix.len();
     let mut points: Vec<Point> = Vec::new();
     for i in 0..char_matrix.len() {
         for j in 0..char_matrix[i].len() {
-            if char_matrix[i][j] == '9' {}
+            if char_matrix[i][j] == '9' {
+                if test_points(&char_matrix, width, height, i, j) {
+                    sum += 1;
+                }
+            }
         }
     }
 
-    points.iter().for_each(|point| {
-        if point.value == 9 {
-            points.iter().for_each(|other_point| {});
-        }
-    });
-    None
+    Some(sum)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
